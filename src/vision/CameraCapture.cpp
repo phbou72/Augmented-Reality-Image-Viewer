@@ -3,6 +3,11 @@
 using namespace cv;
 using namespace std;
 
+namespace vision {
+
+float CameraCapture::width = 640.0f;
+float CameraCapture::height = 480.0f;
+
 CameraCapture::CameraCapture() {
 }
 
@@ -23,11 +28,12 @@ Mat CameraCapture::takePicture() {
 
 void CameraCapture::openCapture() {
 	videoCapture.open(0);
+
 	setConfig(videoCapture);
 
 	Mat picture;
 	if (videoCapture.isOpened() == true) {
-		for (int i = 0; i < 5; i++) { //5 images le temps que la caméra se stabilise
+		for (int i = 0; i < 5; i++) { //5 images le temps que la caméra se stabilise //TODO encore utile?
 			videoCapture >> picture;
 		}
 	}
@@ -38,7 +44,12 @@ void CameraCapture::closeCapture() {
 }
 
 void CameraCapture::setConfig(cv::VideoCapture & videoCapture) {
-	/*videoCapture.set(CV_CAP_PROP_BRIGHTNESS, 0.700f);
+	videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, height);
+	videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, width);
+
+	videoCapture.set(CV_CAP_PROP_BRIGHTNESS, 0.700f);
 	videoCapture.set(CV_CAP_PROP_CONTRAST, 0.196078f);
-	videoCapture.set(CV_CAP_PROP_SATURATION, 0.176470f);*/
+	videoCapture.set(CV_CAP_PROP_SATURATION, 0.176470f);
+}
+
 }

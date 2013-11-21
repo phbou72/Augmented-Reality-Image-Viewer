@@ -5,6 +5,8 @@
 
 #include <opencv2/highgui/highgui.hpp>
 
+namespace vision {
+
 class CameraCapture {
 private:
 	cv::VideoCapture videoCapture;
@@ -12,6 +14,10 @@ private:
 	void setConfig(cv::VideoCapture & videoCapture);
 
 public:
+	static float width;
+	static float height;
+
+
 	CameraCapture();
 	~CameraCapture();
 
@@ -21,4 +27,6 @@ public:
 	cv::Mat takePicture();
 };
 
-#endif /* CAMERACAPTURE_H_ */
+}
+
+#endif
