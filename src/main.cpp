@@ -35,7 +35,7 @@ int main() {
 	double t = 0.0;
 	double t2 = 0.0;
 
-	int nbImg = 6;
+	int nbImg = 7;
 	int currentImg = 0;
 	float fistScale = 1.0f;
 	float fistRelativeSize = 0;

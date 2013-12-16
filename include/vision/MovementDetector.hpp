@@ -23,7 +23,7 @@ public:
 	~MovementDetector();
 
 	void drawZones(cv::Mat & frame);
-	void detectionMovement(cv::Mat & grayFrame, cv::Mat & frame);
+	std::vector<cv::Rect> detectHands(cv::Mat & grayFrame, cv::Mat & frame);
 
 private:
 	bool passByCenter;
