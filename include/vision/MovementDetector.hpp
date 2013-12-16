@@ -27,16 +27,8 @@ public:
 
 private:
 	bool passByCenter;
-	bool newPalm;
-	bool alreadyPalm;
 
 	cv::CascadeClassifier fist_cascade;
-	cv::CascadeClassifier palm_cascade;
-
-	std::vector<cv::Rect> fists;
-	std::vector<cv::Rect> palms;
-
-	void detectHands(cv::Mat & grayFrame, cv::Mat & frame);
 
 };
 
