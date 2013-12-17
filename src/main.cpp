@@ -20,27 +20,20 @@ using namespace vision;
 using namespace interface;
 
 int main() {
+	char key = 'a';
+	float fistSizeMin = 60.0f; // Pour le calcul de imgIntensity seulement...
+	float fistSizeMax = 350.0f; // Pour le calcul de imgIntensity seulement...
+
+	int currentImg = 0;
+	float imgScale = 1.0f;
+	float imgIntensity = 0.0f;
+	int nbImg = 7;
+
 	Ptr<CameraCapture> cam(new CameraCapture());
 	cam->openCapture();
 
-	Ptr<HSVTester> hsvTester(new HSVTester());
 	Ptr<HandExtractor> handExtractor(new HandExtractor);
 	Ptr<MovementDetector> mvtDetector(new MovementDetector);
-
-	Vector<double> msFrame;
-	Vector<double> msDraw;
-	Vector<double> msDetect;
-
-	char key = 'a';
-	double t = 0.0;
-	double t2 = 0.0;
-
-	int nbImg = 7;
-	int currentImg = 0;
-	float fistScale = 1.0f;
-	float fistRelativeSize = 0;
-	float fistSizeMin = 60.0f;
-	float fistSizeMax = 350.0f;
 
 	Vector<float> fistSizes;
 
@@ -54,21 +47,14 @@ int main() {
 	}
 
 	while (key != 27) {
-		t2 = (double) getTickCount();
-
 		Mat frame = cam->takePicture();
 
 		Mat grayFrame;
 		cvtColor(frame, grayFrame, CV_RGB2GRAY);
-
 		GaussianBlur(grayFrame, grayFrame, Size(11, 11), 1, 1);
 
-		t = (double) getTickCount();
 		mvtDetector->drawZones(frame);
-		t = ((double) getTickCount() - t) / getTickFrequency();
-		msDraw.push_back(t);
 
-		t = (double) getTickCount();
 		std::vector<cv::Rect> fists = mvtDetector->detectHands(grayFrame, frame);
 
 		if (!fists.empty()) {
@@ -95,15 +81,15 @@ int main() {
 					cout << "HAUT" << endl;
 					passByCenter = false;
 
-					if (fistScale < 2.6) {
-						fistScale += 0.5f;
+					if (imgScale < 2.6) {
+						imgScale += 0.5f;
 					}
 				} else if (MovementDetector::zoneBas.contains(fists[0].br())) {
 					cout << "BAS" << endl;
 					passByCenter = false;
 
-					if (fistScale > 0.9f) {
-						fistScale -= 0.5f;
+					if (imgScale > 0.9f) {
+						imgScale -= 0.5f;
 					}
 				}
 			} else {
@@ -114,48 +100,23 @@ int main() {
 			}
 
 			if (fists[0].width >= fistSizeMin) {
-				fistRelativeSize = (fists[0].width - fistSizeMin) / (fistSizeMax - fistSizeMin) * 100;
+				imgIntensity = (fists[0].width - fistSizeMin) / (fistSizeMax - fistSizeMin) * 100;
 			}
 		}
 
-		t = ((double) getTickCount() - t) / getTickFrequency();
-		msDetect.push_back(t);
-
-		imshow("frame", frame);
+		key = waitKey(1);
 
 		Mat img = images[currentImg].clone();
 
 		Mat resizedImage;
-		resize(img, resizedImage, resizedImage.size(), fistScale, fistScale, CV_INTER_LINEAR);
+		resize(img, resizedImage, resizedImage.size(), imgScale, imgScale, CV_INTER_LINEAR);
 
 		Mat newIntensityImg;
-		resizedImage.convertTo(newIntensityImg, -1, 1, fistRelativeSize);
+		resizedImage.convertTo(newIntensityImg, -1, 1, imgIntensity);
 
+		imshow("frame", frame);
 		imshow("img", newIntensityImg);
-
-		key = waitKey(1);
-		t2 = ((double) getTickCount() - t2) / getTickFrequency();
-		msFrame.push_back(t2);
 	}
-
-	/*
-	 * Calcul du temps d'exécution
-	 */
-	double n = msDraw.size();
-
-	double timeDetect = 0;
-	for (unsigned int i = 0; i < n; i++) {
-		timeDetect += msDetect[i];
-	}
-	timeDetect /= n;
-	cout << "Temps moyen pour détecter les mains " << timeDetect << endl;
-
-	double timeFrame = 0;
-	for (unsigned int i = 0; i < n; i++) {
-		timeFrame += msFrame[i];
-	}
-	timeFrame /= n;
-	cout << "Temps moyen pour traiter un frame " << timeFrame << endl;
 
 	cam->closeCapture();
 
